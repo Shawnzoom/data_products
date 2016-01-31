@@ -1,25 +1,40 @@
 library(shiny)
 
 ui <- fluidPage(
-  tags$h3("Gradient Descent with a fixed step-size: A peek under the hood using Linear Regression"),
-  tags$h4("Adjust the sliders to fit the red regression line on Chart 4, using the gradient descent algorithm"
-         
+  tags$h3("Gradient Descent with a fixed step-size: 
+          A peek under the hood using Linear Regression"),
+  tags$h4("- Adjust the sliders to fit the red regression 
+          line on Chart 4, using the gradient descent algorithm"),
+  tags$h4("- Use the Resample button to generate a new set of 100 random variables"
   ),
-  sliderInput(inputId = "step.size", 
-              label = "Adjust Step Size", 
-              value = 1e-6, min = 1e-6, max = 1e-4, step = 1e-6),
-  sliderInput(inputId = "max.iterations", 
-              label = "Adjust number of iterations", 
-              value = 100, min = 100, max = 1000, step = 100),
-  plotOutput("gradient.descent")
-
+  tags$br(),
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput(inputId = "step.size", 
+                  label = "Adjust Step Size", 
+                  value = 1e-6, min = 1e-6, max = 1e-4, step = 1e-6),
+      sliderInput(inputId = "max.iterations", 
+                  label = "Adjust number of iterations", 
+                  value = 100, min = 100, max = 1000, step = 100),
+      actionButton("renorm", "Resample")
+    ),
+    mainPanel(
+      plotOutput("gradient.descent")
+    )
+  )
 )
 
 server <- function(input, output) {
+  n = 100
+  rv <- reactiveValues(norm1 = rnorm(n),
+                       norm2 = rnorm(n))
+  
+  observeEvent(input$renorm, { rv$norm1 <- rnorm(n);  rv$norm2 <- rnorm(n)})
+  
   output$gradient.descent <- renderPlot({
     
-    set.seed(400)
-    n = 100; x = rnorm(n); x2 = rnorm(n)
+   # set.seed(400)
+    x = rv$norm1; x2 = rv$norm2
     
     ## Generate linearly realted data
     y = 1 + 2 * x + + x2 + rnorm(n, sd = .5)
@@ -100,9 +115,9 @@ server <- function(input, output) {
     par(mfrow = c(2, 2), mar = c(4, 4, 2, 1), oma = c(0, 0, 2, 0))
     
     # plot the data
-    plot(w0_history, type='line', col='orange', lwd=2, ylab='w0', xlab='Iterations', 
+    plot(w0_history, type='line', col='orange', lwd=2, ylab='Intercept', xlab='Iterations', 
          main = "Chart 1: The Intercept")
-    plot(w1_history, type='line', col='green', lwd=2, ylab='w1', xlab='Iterations',
+    plot(w1_history, type='line', col='green', lwd=2, ylab='Slope', xlab='Iterations',
          main = "Chart 2: The Slope")
     plot(res_history, type='line', col='blue', lwd=2, ylab='prediction error', xlab='Iterations',
          main = "Chart 3: The sum of squared prediction errors")
