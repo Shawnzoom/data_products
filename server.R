@@ -1,28 +1,5 @@
-library(shiny)
 
-ui <- fluidPage(
-  tags$h3("Gradient Descent with a fixed step-size: 
-          A peek under the hood using Linear Regression"),
-  tags$h4("- Adjust the sliders to fit the red regression 
-          line on Chart 4, using the gradient descent algorithm"),
-  tags$h4("- Use the Resample button to generate a new set of 100 random variables"
-  ),
-  tags$br(),
-  sidebarLayout(
-    sidebarPanel(
-      sliderInput(inputId = "step.size", 
-                  label = "Adjust Step Size", 
-                  value = 1e-6, min = 1e-6, max = 1e-4, step = 1e-6),
-      sliderInput(inputId = "max.iterations", 
-                  label = "Adjust number of iterations", 
-                  value = 100, min = 100, max = 1000, step = 100),
-      actionButton("renorm", "Resample")
-    ),
-    mainPanel(
-      plotOutput("gradient.descent")
-    )
-  )
-)
+library(shiny)
 
 server <- function(input, output) {
   n = 100
@@ -33,7 +10,7 @@ server <- function(input, output) {
   
   output$gradient.descent <- renderPlot({
     
-   # set.seed(400)
+    # set.seed(400)
     x = rv$norm1; x2 = rv$norm2
     
     ## Generate linearly realted data
@@ -69,10 +46,10 @@ server <- function(input, output) {
       
       # Compute the prediction errors (prediction - Y)
       err_predict <- yhat - y
-
+      
       # sum of squared prediction error
       sqrd_err <- sum(err_predict^2)
-    
+      
       # Update the intercept:
       
       # compute the derivative: sum(errors)
@@ -127,14 +104,8 @@ server <- function(input, output) {
     
     # plot regression line returned by built-in lm model
     abline(a = fit.lm$coefficients[1], b = fit.lm$coefficients[2])
-   
+    
     # plot regession line given by current intercept and slope
     abline(a = w0, b = w1, col = "red")
   })
 }
-
-shinyApp(ui = ui, server = server)
-
-
-
-
